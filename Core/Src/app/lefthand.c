@@ -53,19 +53,18 @@ void lefthand_run(void) {
         get_wall_info(); // 立ち止まった状態で壁を読む
 
         // ================= 課題3 =================
-        // 左手法の優先順位: 左折 > 直進 > 右折 > Uターン
-        if (!(wall_info & WALL_LEFT)) { // 左が空いていれば左折
-            motion_rotate_left90();
-            maze_turn(DIR_TURN_L90); // 内部方角情報も左回転
-        } else if (!(wall_info & WALL_FRONT)) { // 前が空いていれば直進
-            // 何もしない（そのまま前進する）
-        } else if (!(wall_info & WALL_RIGHT)) { // 右が空いていれば右折
-            motion_rotate_right90();
-            maze_turn(DIR_TURN_R90);
-        } else { // 行き止まりならUターン
-            motion_rotate_180();
-            maze_turn(DIR_TURN_180);
-        }
+        // TODO: 左手法の優先順位「左折 > 直進 > 右折 > Uターン」で
+        //       進む向きを決め，必要なら旋回する
+        //
+        // 使うもの:
+        //   wall_info と WALL_LEFT / WALL_FRONT / WALL_RIGHT … 課題1の成果物
+        //   motion_rotate_left90() / right90() / 180()       … その場で旋回
+        //   maze_turn(DIR_TURN_L90 / R90 / 180)              … 内部方角情報の回転
+        //
+        // 注意: 旋回したら maze_turn() を忘れずに。内部の方角情報がずれると
+        //       現在座標の追跡（ゴール判定）が狂う。
+        // まずシミュレータで試せる: cd Sim && ./sim --lefthand mazes/practice03.maze
+        // 詳細: docs/exercises/03_左手法.md
         // =========================================
 
         motion_one_section();    // 1区画進んで止まる

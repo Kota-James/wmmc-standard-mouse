@@ -58,7 +58,7 @@ static void turn_around_with_touch_up(void) {
 // 現在位置からgoal座標まで足立法で連続探索走行する
 //+++++++++++++++++++++++++++++++++++++++++++++++
 static void search_to_goal(void) {
-    // ================= 課題5-1 =================
+    // ================= 課題6-1 =================
     // TODO: 現在位置からgoal座標まで足立法で連続探索走行する
     //
     // 流れ:
@@ -81,7 +81,7 @@ static void search_to_goal(void) {
     //   7. 一次走行なら maze_store_to_eeprom() でマップを保存する
     //
     // Sim/sim_main.c の run_search() に同じ流れの動く例がある（移動が一瞬なだけ）。
-    // 詳細: docs/exercises/05_走行戦略.md
+    // 詳細: docs/exercises/06_走行戦略.md
     // ==========================================
     (void)turn_around_with_touch_up; // 実装したらこの行は消す（未使用警告よけ）
 }
@@ -104,7 +104,7 @@ void strategy_run(uint8_t second_run) {
     goal_x = GOAL_X;
     goal_y = GOAL_Y;
 
-    // ================= 課題5-2 =================
+    // ================= 課題6-2 =================
     // TODO: 走行前の準備と往復の探索走行を組み立てる
     //
     // 流れ:
@@ -118,7 +118,7 @@ void strategy_run(uint8_t second_run) {
     //   4. goal_x = goal_y = 0 にして search_to_goal() でスタートへ戻る
     //   5. goal座標を元に戻す
     //
-    // 詳細: docs/exercises/05_走行戦略.md
+    // 詳細: docs/exercises/06_走行戦略.md
     // ==========================================
     (void)search_to_goal; // 実装したらこの行は消す（未使用警告よけ）
 
