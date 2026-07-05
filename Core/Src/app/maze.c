@@ -4,7 +4,6 @@
 
 #include <stdio.h>
 #include "app/maze.h"
-#include "app/wall.h"
 #include "hw/hw_eeprom.h"
 
 struct mouse_state mouse;
