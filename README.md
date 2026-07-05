@@ -20,9 +20,11 @@ STM32 Nucleo-32（STM32F303K8）を使ったクラシックマウス用の標準
 ## 開発環境・ビルド
 
 1. STM32CubeIDE をインストールし、このリポジトリを import（Existing Projects into Workspace）
-2. 初回は `NucleoMouse2023.ioc` を CubeMX（CubeIDE 内蔵）で開き、コード生成を実行する
-   （**リポジトリには HAL ドライバ本体を含めていないため、初回生成が必須**）
-3. ビルドして ST-Link 経由で書き込み
+2. ビルドして ST-Link 経由で書き込み
+
+HAL ドライバ本体（`Drivers/`）はリポジトリに含まれているため、クローン直後にそのまま
+ビルドできる。ピン設定や周辺機能を変更するときだけ `NucleoMouse2023.ioc` を
+CubeMX（CubeIDE 内蔵）で開いてコード生成し直す（CubeMX 6.17 / FW_F3 V1.11.6 で管理）。
 
 ## モード一覧（SW1/SW2 で選択、SW3 で決定）
 
