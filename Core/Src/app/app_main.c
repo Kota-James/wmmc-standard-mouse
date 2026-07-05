@@ -59,7 +59,8 @@ void app_main(void) {
     solver_init();    // 経路探索
 
     goal_x = GOAL_X;
-    goal_y = GOAL_Y; // ゴール座標を設定（params.hで調整）
+    goal_y = GOAL_Y;
+    goal_size = GOAL_SIZE; // ゴールは中央2×2領域（params.hで調整）
 
     printf("***** WMMC Nucleo Mouse 2023 *****\n");
 

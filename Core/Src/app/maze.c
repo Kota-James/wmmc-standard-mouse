@@ -9,6 +9,16 @@
 struct mouse_state mouse;
 uint8_t map[MAZE_SIZE][MAZE_SIZE];
 uint8_t goal_x, goal_y;
+uint8_t goal_size = 1;
+
+//+++++++++++++++++++++++++++++++++++++++++++++++
+// maze_is_goal
+// 指定座標がゴール領域（南西角(goal_x,goal_y)の goal_size×goal_size）内か調べる
+//+++++++++++++++++++++++++++++++++++++++++++++++
+uint8_t maze_is_goal(uint8_t x, uint8_t y) {
+    return (x >= goal_x) && (x < goal_x + goal_size) && (y >= goal_y) &&
+           (y < goal_y + goal_size);
+}
 
 static uint8_t second_run; // 二次走行モードか
 

@@ -68,7 +68,7 @@ static void search_to_goal(void) {
     //   3. motion_half_section_accel() で最初の半区画を前進し，
     //      maze_advance_position() と壁の記録を行う
     //   4. r_cnt=0 にして solver_make_step_map() → solver_make_route()
-    //   5. ゴールに着くまで繰り返し:
+    //   5. ゴール領域に入るまで（!maze_is_goal(mouse.x, mouse.y) の間）繰り返し:
     //        route[r_cnt++] の値で分岐（0x88=前進, 0x44=右折, 0x22=Uターン, 0x11=左折）
     //        - 前進: motion_one_section_const()
     //        - 旋回: motion_half_section_decel() → motion_rotate_*() →
@@ -103,6 +103,7 @@ void strategy_run(uint8_t second_run) {
     maze_set_second_run(second_run);
     goal_x = GOAL_X;
     goal_y = GOAL_Y;
+    goal_size = GOAL_SIZE; // 往路のゴールは中央2×2領域
 
     // ================= 課題6-2 =================
     // TODO: 走行前の準備と往復の探索走行を組み立てる
@@ -115,8 +116,9 @@ void strategy_run(uint8_t second_run) {
     //                motion_wait()
     //   2. get_base() で壁制御の基準値を取る
     //   3. search_to_goal() でゴールへ → hw_delay_ms(500)
-    //   4. goal_x = goal_y = 0 にして search_to_goal() でスタートへ戻る
-    //   5. goal座標を元に戻す
+    //   4. goal_x = goal_y = 0, goal_size = 1 にして search_to_goal() で
+    //      スタートへ戻る（スタートは1区画だけなのでgoal_sizeも変える）
+    //   5. goal設定（座標とgoal_size）を元に戻す
     //
     // 詳細: docs/exercises/06_走行戦略.md
     // ==========================================

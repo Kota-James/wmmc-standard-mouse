@@ -44,7 +44,14 @@ struct mouse_state {
 
 extern struct mouse_state mouse;
 extern uint8_t map[MAZE_SIZE][MAZE_SIZE]; // 壁マップ
-extern uint8_t goal_x, goal_y;            // ゴール座標
+extern uint8_t goal_x, goal_y; // ゴール領域の南西角の座標
+extern uint8_t goal_size; // ゴール領域の一辺の区画数
+                          // 日本のクラシック競技はゴールが中央2×2領域
+                          // （(7,7)〜(8,8)）に固定されているため通常は2。
+                          // スタートに戻る走行では(0,0)の1区画にするため1
+
+// (x,y)がゴール領域内なら1を返す
+uint8_t maze_is_goal(uint8_t x, uint8_t y);
 
 void maze_init(void);
 
