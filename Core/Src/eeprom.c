@@ -24,6 +24,9 @@ HAL_StatusTypeDef eeprom_enable_write(void) {
     if (status != HAL_OK)
         return status;
     status = HAL_FLASHEx_Erase(&EraseInitStruct, &PageError);
+    if (status != HAL_OK) {
+        HAL_FLASH_Lock(); // 消去に失敗したときにunlockのまま残さない（暴走時の意図しない書き込み防止）
+    }
     return status;
 }
 
