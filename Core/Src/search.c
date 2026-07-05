@@ -7,6 +7,12 @@
 
 #include "global.h"
 
+// mapデータ（halfword 256要素）の直後に置く有効性マーカー。
+// マーカーが無いままmapを読み込むと、消去済みFlashの0xFFが「全区画に全壁あり」として
+// 読まれ、歩数マップが作れず探索がフリーズするため、読み込み前に必ず確認する
+#define MAP_MARKER_OFFSET 256
+#define MAP_VALID_MARKER 0xA5A5
+
 //+++++++++++++++++++++++++++++++++++++++++++++++
 // search_init
 // 探索系の変数とマップの初期化をする
@@ -541,15 +547,38 @@ void make_route() {
 // 戻り値：なし
 //+++++++++++++++++++++++++++++++++++++++++++++++
 void store_map_in_eeprom(void) {
-    eeprom_enable_write();
+    HAL_StatusTypeDef status = eeprom_enable_write();
+    if (status != HAL_OK) {
+        printf("EEPROM: erase failed. Map was not saved.\n");
+        return;
+    }
     int i;
     for (i = 0; i < 16; i++) {
         int j;
         for (j = 0; j < 16; j++) {
-            eeprom_write_halfword(i * 16 + j, (uint16_t)map[i][j]);
+            if (eeprom_write_halfword(i * 16 + j, (uint16_t)map[i][j]) != HAL_OK) {
+                status = HAL_ERROR;
+            }
         }
     }
+    if (status == HAL_OK) {
+        // 全データを書けたときだけ有効性マーカーを記録する
+        status = eeprom_write_halfword(MAP_MARKER_OFFSET, MAP_VALID_MARKER);
+    }
     eeprom_disable_write();
+    if (status != HAL_OK) {
+        printf("EEPROM: write failed. Map data is invalid.\n");
+    }
+}
+
+//+++++++++++++++++++++++++++++++++++++++++++++++
+// map_in_eeprom_is_valid
+// eepromに有効なmapデータが保存されているか調べる
+// 引数：なし
+// 戻り値：1:有効なmapがある　0:ない（未探索またはeeprom書き込み失敗）
+//+++++++++++++++++++++++++++++++++++++++++++++++
+uint8_t map_in_eeprom_is_valid(void) {
+    return eeprom_read_halfword(MAP_MARKER_OFFSET) == MAP_VALID_MARKER;
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++

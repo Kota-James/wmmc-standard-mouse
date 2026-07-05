@@ -89,6 +89,7 @@ void make_route();                    //最短経路検索
 
 void store_map_in_eeprom(void);
 void load_map_from_eeprom(void);
+uint8_t map_in_eeprom_is_valid(void);   //eepromに有効なmapがあるか
 
 
 #endif /* INC_SEARCH_H_ */

@@ -189,6 +189,11 @@ int main(void)
             case 2:
                 //----二次（最短）走行----
                 printf("Mode 2: 2nd Run.\n");
+                if (!map_in_eeprom_is_valid()) {
+                    // マップ未保存のまま二次走行すると全区画が壁として読まれ探索がフリーズするため中止する
+                    printf("No map in EEPROM. Run Mode 1 first.\n");
+                    break;
+                }
                 drive_enable_motor();
 
                 MF.FLAG.SCND = 1;  // 二次走行フラグをセット
