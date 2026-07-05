@@ -7,8 +7,8 @@
  *
  * 使い方:
  *   make
- *   ./sim mazes/practice01.maze [goal_x goal_y]
- *   ./sim --lefthand mazes/practice03.maze   … 左手法で歩く（課題3の実験用）
+ *   ./sim mazes/real/japan2019.maze [goal_x goal_y]
+ *   ./sim --lefthand mazes/perfect.maze 15 15 … 左手法で歩く（課題3の実験用）
  *
  * 終了コード: 0=成功（課題の自動判定に使える）
  */
