@@ -28,9 +28,15 @@ void solver_make_step_map(void) {
         }
     }
 
-    //----ゴール座標を歩数0にする----
+    //----ゴール領域の全区画を歩数0にする----
+    // 日本のクラシック競技のゴールは中央2×2領域。どの区画に入っても完走なので
+    // 領域全体を0にしておくと「一番近い入口」への経路が自然に得られる
     uint8_t m_step = 0;
-    smap[goal_y][goal_x] = 0;
+    for (y = goal_y; y < goal_y + goal_size && y < MAZE_SIZE; y++) {
+        for (x = goal_x; x < goal_x + goal_size && x < MAZE_SIZE; x++) {
+            smap[y][x] = 0;
+        }
+    }
 
     //----自分の座標にたどり着くまでループ----
     do {

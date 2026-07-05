@@ -192,7 +192,7 @@ static int run_search(int *steps_taken) {
         }
         wall_info = sense_walls();
         solver_update_route(wall_info);
-    } while ((mouse.x != goal_x) || (mouse.y != goal_y));
+    } while (!maze_is_goal(mouse.x, mouse.y));
 
     // 実機はゴールで停止後に180度回転してから次の走行に備える（strategy.c参照）
     maze_turn(DIR_TURN_180);
@@ -211,7 +211,7 @@ static int run_search(int *steps_taken) {
 static int run_lefthand(void) {
     int steps = 0;
     printf("左手法で歩きます（優先順位: 左折 > 直進 > 右折 > Uターン）\n");
-    while (((mouse.x != goal_x) || (mouse.y != goal_y)) && steps < MAX_STEPS) {
+    while (!maze_is_goal(mouse.x, mouse.y) && steps < MAX_STEPS) {
         uint8_t rel = rot4_left(truth[mouse.y][mouse.x], mouse.dir);
         if (!(rel & 0x01)) { // 左が空いていれば左折
             maze_turn(DIR_TURN_L90);
@@ -224,7 +224,7 @@ static int run_lefthand(void) {
         if (move_forward() != 0) return -1;
         steps++;
     }
-    if ((mouse.x == goal_x) && (mouse.y == goal_y)) {
+    if (maze_is_goal(mouse.x, mouse.y)) {
         printf("結果: 左手法でゴール到達（%d 歩）\n", steps);
         return 0;
     }
@@ -262,10 +262,14 @@ int main(int argc, char **argv) {
 
     maze_init();
     solver_init();
+    // ゴール既定値は日本のクラシック競技ルール: 中央2×2領域（南西角(7,7)）。
+    // 座標を明示指定した場合は1区画ゴール（サイズは第4引数で変更可）
     goal_x = (argc > 2) ? (uint8_t)atoi(argv[2]) : 7;
     goal_y = (argc > 3) ? (uint8_t)atoi(argv[3]) : 7;
+    goal_size = (argc > 4) ? (uint8_t)atoi(argv[4]) : ((argc > 2) ? 1 : 2);
 
-    printf("====== 迷路: %s  ゴール: (%d,%d) ======\n", argv[1], goal_x, goal_y);
+    printf("====== 迷路: %s  ゴール: (%d,%d) %d×%d区画 ======\n", argv[1],
+           goal_x, goal_y, goal_size, goal_size);
     print_maze((const uint8_t(*)[MAZE_SIZE])truth, NULL);
 
     //====左手法モード====
@@ -284,8 +288,9 @@ int main(int argc, char **argv) {
 
     //====帰り探索（スタートへ戻る）====
     int steps_back = 0;
-    uint8_t gx = goal_x, gy = goal_y;
+    uint8_t gx = goal_x, gy = goal_y, gs = goal_size;
     goal_x = goal_y = 0;
+    goal_size = 1; // スタートは(0,0)の1区画だけ
     if (run_search(&steps_back) != 0) {
         printf("結果: 帰り探索 失敗\n");
         return 1;
@@ -293,6 +298,7 @@ int main(int argc, char **argv) {
     printf("====== 帰り探索成功: %d 歩 ======\n", steps_back);
     goal_x = gx;
     goal_y = gy;
+    goal_size = gs;
 
     //====二次走行（保存済みマップで最短走行）====
     if (!maze_in_eeprom_is_valid()) {

@@ -107,8 +107,8 @@ static void search_to_goal(void) {
         maze_advance_position();        // 内部位置情報を前進
         solver_update_route(wall_info); // 壁を記録し必要なら経路を作り直す
 
-    } while ((mouse.x != goal_x) || (mouse.y != goal_y));
-    // 現在座標とgoal座標が等しくなるまで実行
+    } while (!maze_is_goal(mouse.x, mouse.y));
+    // ゴール領域（2×2のどの区画でもよい）に入るまで実行
 
     motion_half_section_decel(); // 区画中央で停止する
 
@@ -138,6 +138,7 @@ void strategy_run(uint8_t second_run) {
     maze_set_second_run(second_run);
     goal_x = GOAL_X;
     goal_y = GOAL_Y;
+    goal_size = GOAL_SIZE; // 往路のゴールは中央2×2領域
 
     //====尻当てで位置と向きを合わせる====
     // 右を向いて尻当て→左を向き直して尻当てすると，
@@ -159,10 +160,12 @@ void strategy_run(uint8_t second_run) {
 
     //====復路: 探索しながらスタート地点へ戻る====
     goal_x = goal_y = 0;
+    goal_size = 1; // スタートは(0,0)の1区画だけ
     search_to_goal();
 
     goal_x = GOAL_X;
-    goal_y = GOAL_Y; // ゴール座標を元に戻しておく
+    goal_y = GOAL_Y;
+    goal_size = GOAL_SIZE; // ゴール設定を元に戻しておく
 
     hw_motor_disable(); // 励磁を切る
 }

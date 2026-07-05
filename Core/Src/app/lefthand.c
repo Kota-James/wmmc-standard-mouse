@@ -42,14 +42,14 @@ void lefthand_run(void) {
 
     goal_x = GOAL_X;
     goal_y = GOAL_Y;
+    goal_size = GOAL_SIZE;
     mouse.x = 0;
     mouse.y = 0;
     mouse.dir = DIR_NORTH;
 
     //====左手法で1区画ずつ進む====
     uint16_t steps = 0;
-    while (((mouse.x != goal_x) || (mouse.y != goal_y)) &&
-           steps < LEFTHAND_MAX_STEPS) {
+    while (!maze_is_goal(mouse.x, mouse.y) && steps < LEFTHAND_MAX_STEPS) {
         get_wall_info(); // 立ち止まった状態で壁を読む
 
         // ================= 課題3 =================
@@ -73,10 +73,11 @@ void lefthand_run(void) {
         steps++;
     }
 
-    if ((mouse.x == goal_x) && (mouse.y == goal_y)) {
+    if (maze_is_goal(mouse.x, mouse.y)) {
         printf("Goal! (%u steps)\n", steps);
     } else {
-        // ループのある迷路では左手法はゴールに着けないことがある
+        // ループのある迷路では左手法はゴールに着けないことがある。
+        // 特に大会ルールの中央2×2ゴールは周囲がループになるため原理的に到達できない
         printf("Goal not reached in %u steps. (maze has loops?)\n", steps);
     }
 
