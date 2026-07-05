@@ -16,6 +16,8 @@ void motion_init(void);
 void motion_half_section_accel(void); // 半区画分加速しながら走行する（止まらない）
 void motion_half_section_decel(void); // 半区画分減速しながら走行し停止する
 void motion_one_section(void);        // 1区画分進んで停止する（加速→減速）
+                                      // ※連続走行では使わない。1区画ごとに止まる
+                                      //   確実な探索を自作したいときに使う
 void motion_one_section_const(void);  // 等速のまま1区画分進む（止まらない）
 
 //----旋回----

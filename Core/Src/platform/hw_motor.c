@@ -44,7 +44,7 @@ static uint16_t turn_interval_us;             // 旋回時のパルス間隔[µs
 // 走行系の変数の初期化とモータドライバの初期状態設定
 //+++++++++++++++++++++++++++++++++++++++++++++++
 void hw_motor_init(const hw_motor_config_t *config) {
-    min_t_cnt = 0;
+    min_t_cnt = 0; // テーブル先頭＝最低速から使う（現状これを変える理由がないため固定）
     max_t_cnt = config->max_speed_index;
     turn_interval_us = config->turn_interval_us;
     t_cnt_l = t_cnt_r = min_t_cnt;
