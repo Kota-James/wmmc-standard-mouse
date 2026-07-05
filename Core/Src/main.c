@@ -265,8 +265,8 @@ int main(void)
                     led_write(wall_info & 0x44, wall_info & 0x88,
                               wall_info & 0x11);
                     printf(
-                        " ad_l : %4d, ad_fl : %4d, ad_fr : %4d, ad_r : %4d, "
-                        "ad_batt : %4d\n",
+                        " ad_l : %4lu, ad_fl : %4lu, ad_fr : %4lu, ad_r : %4lu, "
+                        "ad_batt : %4lu\n",
                         ad_l, ad_fl, ad_fr, ad_r, ad_batt);
                     printf("dif_l : %4d, dif_r : %4d\n", dif_l, dif_r);
                     if (wall_info & 0x11) {
