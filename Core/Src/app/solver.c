@@ -29,49 +29,31 @@ void solver_make_step_map(void) {
     }
 
     //----ゴール座標を歩数0にする----
-    uint8_t m_step = 0;
     smap[goal_y][goal_x] = 0;
 
-    //----自分の座標にたどり着くまでループ----
-    do {
-        // マップ全域を走査し，現在の最大歩数m_stepの区画を見つけたら
-        // 壁のない未記入の隣接区画に次の歩数を書き込む
-        for (y = 0; y < MAZE_SIZE; y++) {
-            for (x = 0; x < MAZE_SIZE; x++) {
-                if (smap[y][x] != m_step) {
-                    continue;
-                }
-                uint8_t walls = maze_wall_bits(x, y);
-                //----北----
-                if (!(walls & 0x08) && y != MAZE_SIZE - 1) {
-                    if (smap[y + 1][x] == STEP_UNREACHED) {
-                        smap[y + 1][x] = m_step + 1;
-                    }
-                }
-                //----東----
-                if (!(walls & 0x04) && x != MAZE_SIZE - 1) {
-                    if (smap[y][x + 1] == STEP_UNREACHED) {
-                        smap[y][x + 1] = m_step + 1;
-                    }
-                }
-                //----南----
-                if (!(walls & 0x02) && y != 0) {
-                    if (smap[y - 1][x] == STEP_UNREACHED) {
-                        smap[y - 1][x] = m_step + 1;
-                    }
-                }
-                //----西----
-                if (!(walls & 0x01) && x != 0) {
-                    if (smap[y][x - 1] == STEP_UNREACHED) {
-                        smap[y][x - 1] = m_step + 1;
-                    }
-                }
-            }
-        }
-        m_step++;
-    } while (smap[mouse.y][mouse.x] == STEP_UNREACHED &&
-             m_step < STEP_UNREACHED);
-    // 0xffは未記入印なので，そこまで数えたら到達不能と判断して打ち切る
+    // ================= 課題4-1 =================
+    // TODO: ゴール(歩数0)から歩数を広げていき，
+    //       自分の座標 smap[mouse.y][mouse.x] に歩数が書かれるまで繰り返す
+    //
+    // 素直な実装（まずはこれでよい）:
+    //   「マップ全域を走査して歩数nの区画を見つけ，壁のない未記入の隣に n+1 を書く」
+    //   を n=0,1,2,... と繰り返す
+    //
+    // 使うもの:
+    //   maze_wall_bits(x, y) … その区画の壁4bit（bit3=北 bit2=東 bit1=南 bit0=西。
+    //                          一次/二次走行のニブル選択は自動で行われる）
+    //   STEP_UNREACHED       … 未記入の印(0xff)
+    //
+    // 注意:
+    //   - 端の区画で配列の外に書かないこと
+    //   - ゴールが到達不能なマップを渡されても無限ループしないこと
+    //     （歩数が0xffに達したら打ち切る，など）
+    //
+    // 発展: この方式は遅い。キューを使った幅優先探索に書き換えると数十倍速くなる
+    // 詳細: docs/exercises/04_足立法.md
+    // ==========================================
+    (void)x;
+    (void)y; // 実装したらこの2行は消す（未使用警告よけ）
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++
@@ -89,64 +71,28 @@ void solver_make_route(void) {
     }
 
     //----現在座標から出発----
-    uint8_t m_step = smap[mouse.y][mouse.x];
     x = mouse.x;
     y = mouse.y;
 
-    //----ゴール（歩数0）にたどり着くまで歩数が減る方向を選ぶ----
-    i = 0;
-    do {
-        uint8_t walls = maze_wall_bits(x, y);
-
-        //----北を見る----
-        if (!(walls & 0x08) && (smap[y + 1][x] < m_step)) {
-            route[i] = (DIR_NORTH - mouse.dir) & 0x03; // 進行方向を相対方向に変換
-            m_step = smap[y + 1][x];
-            y++;
-        }
-        //----東を見る----
-        else if (!(walls & 0x04) && (smap[y][x + 1] < m_step)) {
-            route[i] = (DIR_EAST - mouse.dir) & 0x03;
-            m_step = smap[y][x + 1];
-            x++;
-        }
-        //----南を見る----
-        else if (!(walls & 0x02) && (smap[y - 1][x] < m_step)) {
-            route[i] = (DIR_SOUTH - mouse.dir) & 0x03;
-            m_step = smap[y - 1][x];
-            y--;
-        }
-        //----西を見る----
-        else if (!(walls & 0x01) && (smap[y][x - 1] < m_step)) {
-            route[i] = (DIR_WEST - mouse.dir) & 0x03;
-            m_step = smap[y][x - 1];
-            x--;
-        }
-
-        //----相対方向を動作形式（壁情報と同じビット割り当て）に変換----
-        switch (route[i]) {
-        case 0x00: // 前進
-            route[i] = 0x88;
-            break;
-        case 0x01: // 右折
-            maze_turn(DIR_TURN_R90); // 内部方角も回しながら経路を組み立てる
-            route[i] = 0x44;
-            break;
-        case 0x02: // Uターン
-            maze_turn(DIR_TURN_180);
-            route[i] = 0x22;
-            break;
-        case 0x03: // 左折
-            maze_turn(DIR_TURN_L90);
-            route[i] = 0x11;
-            break;
-        default: // どの方向にも進めなかった場合
-            route[i] = 0x00;
-            break;
-        }
-        i++;
-    } while (smap[y][x] != 0 && i < 256);
-    // route[256]の容量を超えないよう打ち切る
+    // ================= 課題4-2 =================
+    // TODO: 現在座標(x,y)から歩数マップの値が減る方向へたどり，
+    //       ゴール（歩数0）に着くまでの動作列を route[] に書き込む
+    //
+    // 手順のヒント:
+    //   1. 壁がなく歩数が今より小さい隣の区画を探す（maze_wall_bits, smap）
+    //   2. 「北に進みたい」を「今の向きから見て右折」のような相対方向に変換する。
+    //      相対方向 = (絶対方位 - mouse.dir) & 0x03
+    //   3. 相対方向を動作形式に変換して route[i] に格納する:
+    //      0(前進)→0x88, 1(右折)→0x44, 2(Uターン)→0x22, 3(左折)→0x11
+    //      旋回のときは maze_turn() で内部方角も回しながら組み立てる
+    //      （mouse.dirは上でdir_tempに退避済み。最後に復元される）
+    //   4. i が route[] の容量(256)を超えないように打ち切ること
+    //
+    // 詳細: docs/exercises/04_足立法.md
+    // ==========================================
+    (void)x;
+    (void)y;
+    (void)i; // 実装したらこの3行は消す（未使用警告よけ）
 
     mouse.dir = dir_temp; // 退避した内部方角を復元する
 }

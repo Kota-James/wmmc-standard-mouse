@@ -58,67 +58,32 @@ static void turn_around_with_touch_up(void) {
 // 現在位置からgoal座標まで足立法で連続探索走行する
 //+++++++++++++++++++++++++++++++++++++++++++++++
 static void search_to_goal(void) {
-    if (maze_is_second_run()) {
-        maze_load_from_eeprom(); // 二次走行時は保存済みマップを使う
-    }
-
-    //====スタート位置の壁情報取得====
-    get_wall_info();
-    wall_info &= ~WALL_FRONT; // スタート区画の前壁は存在しないはずなので消す
-    maze_write_walls(wall_info);
-
-    //====前に壁が無い前提で最初の半区画を前進====
-    motion_half_section_accel();
-    maze_advance_position();
-    maze_write_walls(wall_info);
-
-    //====歩数マップ・経路作成====
-    r_cnt = 0;
-    solver_make_step_map();
-    solver_make_route();
-
-    //====探索走行====
-    do {
-        //----経路の次の動作で進行----
-        switch (route[r_cnt++]) {
-        case 0x88: //----前進----
-            motion_one_section_const();
-            break;
-        case 0x44: //----右折----
-            motion_half_section_decel();
-            motion_rotate_right90();
-            maze_turn(DIR_TURN_R90); // 内部方角情報も右回転
-            motion_half_section_accel();
-            break;
-        case 0x22: //----Uターン----
-            motion_half_section_decel();
-            turn_around_with_touch_up();
-            maze_turn(DIR_TURN_180); // 内部方角情報も180度回転
-            motion_half_section_accel();
-            break;
-        case 0x11: //----左折----
-            motion_half_section_decel();
-            motion_rotate_left90();
-            maze_turn(DIR_TURN_L90); // 内部方角情報も左回転
-            motion_half_section_accel();
-            break;
-        }
-
-        maze_advance_position();        // 内部位置情報を前進
-        solver_update_route(wall_info); // 壁を記録し必要なら経路を作り直す
-
-    } while ((mouse.x != goal_x) || (mouse.y != goal_y));
-    // 現在座標とgoal座標が等しくなるまで実行
-
-    motion_half_section_decel(); // 区画中央で停止する
-
-    hw_delay_ms(2200); // スタートでは2秒以上停止しなくてはならない（競技規定）
-    motion_rotate_180();
-    maze_turn(DIR_TURN_180);
-
-    if (!maze_is_second_run()) {
-        maze_store_to_eeprom(); // 一次走行で得たマップを保存する
-    }
+    // ================= 課題5-1 =================
+    // TODO: 現在位置からgoal座標まで足立法で連続探索走行する
+    //
+    // 流れ:
+    //   1. 二次走行なら maze_load_from_eeprom() で保存済みマップを読み込む
+    //   2. スタート区画の壁を読む: get_wall_info() → wall_info &= ~WALL_FRONT
+    //      （前壁は無い前提）→ maze_write_walls(wall_info)
+    //   3. motion_half_section_accel() で最初の半区画を前進し，
+    //      maze_advance_position() と壁の記録を行う
+    //   4. r_cnt=0 にして solver_make_step_map() → solver_make_route()
+    //   5. ゴールに着くまで繰り返し:
+    //        route[r_cnt++] の値で分岐（0x88=前進, 0x44=右折, 0x22=Uターン, 0x11=左折）
+    //        - 前進: motion_one_section_const()
+    //        - 旋回: motion_half_section_decel() → motion_rotate_*() →
+    //                maze_turn(DIR_TURN_*) → motion_half_section_accel()
+    //        - Uターンでは turn_around_with_touch_up() を使うと位置誤差をリセットできる
+    //        毎回 maze_advance_position() と solver_update_route(wall_info) を呼ぶ
+    //   6. ゴールしたら motion_half_section_decel() で停止 →
+    //      hw_delay_ms(2200)（2秒以上停止は競技規定）→ motion_rotate_180() +
+    //      maze_turn(DIR_TURN_180)
+    //   7. 一次走行なら maze_store_to_eeprom() でマップを保存する
+    //
+    // Sim/sim_main.c の run_search() に同じ流れの動く例がある（移動が一瞬なだけ）。
+    // 詳細: docs/exercises/05_走行戦略.md
+    // ==========================================
+    (void)turn_around_with_touch_up; // 実装したらこの行は消す（未使用警告よけ）
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++
@@ -132,30 +97,23 @@ void strategy_run(uint8_t second_run) {
     goal_x = GOAL_X;
     goal_y = GOAL_Y;
 
-    //====尻当てで位置と向きを合わせる====
-    // 右を向いて尻当て→左を向き直して尻当てすると，
-    // 横方向・縦方向の両方の位置と角度が揃う
-    motion_rotate_right90();
-    motion_wait();
-    motion_set_position(0);
-    motion_wait();
-    motion_rotate_left90();
-    motion_wait();
-    motion_set_position(0);
-    motion_wait();
-
-    get_base(); // 壁制御のための基準値取得
-
-    //====往路: ゴールまで探索走行====
-    search_to_goal();
-    hw_delay_ms(500);
-
-    //====復路: 探索しながらスタート地点へ戻る====
-    goal_x = goal_y = 0;
-    search_to_goal();
-
-    goal_x = GOAL_X;
-    goal_y = GOAL_Y; // ゴール座標を元に戻しておく
+    // ================= 課題5-2 =================
+    // TODO: 走行前の準備と往復の探索走行を組み立てる
+    //
+    // 流れ:
+    //   1. 尻当てで位置と向きを合わせる:
+    //      右を向いて尻当て→左を向き直して尻当てすると，
+    //      横方向・縦方向の両方の位置と角度が揃う（なぜか考えること）
+    //      使う関数: motion_rotate_right90/left90(), motion_set_position(0),
+    //                motion_wait()
+    //   2. get_base() で壁制御の基準値を取る
+    //   3. search_to_goal() でゴールへ → hw_delay_ms(500)
+    //   4. goal_x = goal_y = 0 にして search_to_goal() でスタートへ戻る
+    //   5. goal座標を元に戻す
+    //
+    // 詳細: docs/exercises/05_走行戦略.md
+    // ==========================================
+    (void)search_to_goal; // 実装したらこの行は消す（未使用警告よけ）
 
     hw_motor_disable(); // 励磁を切る
 }

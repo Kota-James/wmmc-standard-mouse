@@ -22,19 +22,18 @@ void wall_init(void) {
 void get_wall_info(void) {
     wall_info = 0x00;
 
-    //----前壁を見る----
-    if (hw_sensor_front_right() > WALL_BASE_FR ||
-        hw_sensor_front_left() > WALL_BASE_FL) {
-        wall_info |= WALL_FRONT;
-    }
-    //----右壁を見る----
-    if (hw_sensor_right() > WALL_BASE_R) {
-        wall_info |= WALL_RIGHT;
-    }
-    //----左壁を見る----
-    if (hw_sensor_left() > WALL_BASE_L) {
-        wall_info |= WALL_LEFT;
-    }
+    // ================= 課題1 =================
+    // TODO: センサ値としきい値を比べて壁の有無を判定し，wall_infoにビットを立てる
+    //
+    // 使うもの:
+    //   hw_sensor_front_right(), hw_sensor_front_left(),
+    //   hw_sensor_right(), hw_sensor_left()        … 最新のセンサ値
+    //   WALL_BASE_FR, WALL_BASE_FL, WALL_BASE_R, WALL_BASE_L … しきい値(params.h)
+    //   WALL_FRONT, WALL_RIGHT, WALL_LEFT          … 立てるビット(wall.h)
+    //
+    // ヒント: 前壁はセンサが2つある。どう組み合わせるべきか？
+    // 詳細: docs/exercises/01_壁判定.md
+    // =========================================
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++

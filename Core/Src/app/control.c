@@ -45,18 +45,21 @@ void app_control_tick(void) {
         return;
     }
 
-    // 比例制御: 壁に近づいた（＝基準値より大きい）側と逆へ操作する
-    int16_t steer_l = 0, steer_r = 0;
-    if (CTRL_BASE_L < dif_l) { // 左壁に近づきすぎた場合
-        steer_l += -1 * CTRL_CONT * dif_l;
-        steer_r += CTRL_CONT * dif_l;
-    }
-    if (CTRL_BASE_R < dif_r) { // 右壁に近づきすぎた場合
-        steer_l += CTRL_CONT * dif_r;
-        steer_r += -1 * CTRL_CONT * dif_r;
-    }
-
-    // 操作量が大きくなりすぎないよう制限してモータへ反映する
-    hw_motor_set_steering(clamp(steer_l, -CTRL_MAX, CTRL_MAX),
-                          clamp(steer_r, -CTRL_MAX, CTRL_MAX));
+    // ================= 課題2 =================
+    // TODO: 偏差 dif_l / dif_r から操作量を計算し，
+    //       hw_motor_set_steering(left, right) でモータに反映する（比例制御）
+    //
+    // 使うもの:
+    //   dif_l, dif_r … 基準値からの偏差（正 = 壁に近づきすぎ。上で計算済み）
+    //   CTRL_BASE_L, CTRL_BASE_R … 不感帯（この偏差までは操作しない）
+    //   CTRL_CONT               … 比例ゲイン
+    //   CTRL_MAX                … 操作量の上限（clamp関数を使うとよい）
+    //
+    // 操作量は「正の値を渡した側の車輪が速くなる」。
+    // 左壁に近づいたらどちらを速くすべきか，図を書いて考えること。
+    // 注意: この関数は割り込み内で動く。printfや長いループは書かないこと。
+    // 詳細: docs/exercises/02_壁沿い制御.md
+    // =========================================
+    hw_motor_set_steering(0, 0); // 実装したらこの行は消す
+    (void)clamp;                 // 実装したらこの行は消す（未使用警告よけ）
 }

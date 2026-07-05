@@ -73,48 +73,22 @@ uint8_t maze_wall_bits(uint8_t x, uint8_t y) {
 // 隣の区画から見た壁（例:自分の北壁=北隣の南壁）も同時に更新する
 //+++++++++++++++++++++++++++++++++++++++++++++++
 void maze_write_walls(uint8_t wall_info) {
-    uint8_t m_temp;
-
-    //----壁情報の向き補正----
-    m_temp = (wall_info >> mouse.dir) & 0x0f; // 自機方位分シフトして絶対方位に直す
-    m_temp |= (m_temp << 4); // 上位ニブルにも同じ値を入れる（探索済み=確定壁）
-
-    //----自機位置に書き込み----
-    map[mouse.y][mouse.x] = m_temp;
-
-    //----隣接区画への反映----
-    // 北隣: 自分の北壁は隣の南壁
-    if (mouse.y != MAZE_SIZE - 1) {
-        if (m_temp & 0x88) {
-            map[mouse.y + 1][mouse.x] |= 0x22;
-        } else {
-            map[mouse.y + 1][mouse.x] &= 0xDD;
-        }
-    }
-    // 東隣: 自分の東壁は隣の西壁
-    if (mouse.x != MAZE_SIZE - 1) {
-        if (m_temp & 0x44) {
-            map[mouse.y][mouse.x + 1] |= 0x11;
-        } else {
-            map[mouse.y][mouse.x + 1] &= 0xEE;
-        }
-    }
-    // 南隣: 自分の南壁は隣の北壁
-    if (mouse.y != 0) {
-        if (m_temp & 0x22) {
-            map[mouse.y - 1][mouse.x] |= 0x88;
-        } else {
-            map[mouse.y - 1][mouse.x] &= 0x77;
-        }
-    }
-    // 西隣: 自分の西壁は隣の東壁
-    if (mouse.x != 0) {
-        if (m_temp & 0x11) {
-            map[mouse.y][mouse.x - 1] |= 0x44;
-        } else {
-            map[mouse.y][mouse.x - 1] &= 0xBB;
-        }
-    }
+    // ================= 課題3 =================
+    // TODO: 自機から見た壁情報(wall_info)を絶対方位に補正して
+    //       map[mouse.y][mouse.x] に書き込む。
+    //       さらに隣接区画から見た壁（例: 自分の北壁 = 北隣の南壁）も更新する
+    //
+    // 手順のヒント:
+    //   1. wall_info を mouse.dir 分右シフトして下位4bitを取り出すと，
+    //      NESW順の絶対方位になる（なぜそうなるかは紙に書いて確かめること）
+    //   2. 上位ニブルにも同じ値をコピーする（探索済み = 確定壁として扱うため）
+    //   3. 四方の隣接区画に対応するビットを立てる/落とす。
+    //      端の区画では配列の外に出ないよう注意
+    //
+    // シミュレータ(Sim/)で動作確認できる。実機は不要。
+    // 詳細: docs/exercises/03_マップ記録.md
+    // =========================================
+    (void)wall_info; // 実装したらこの行は消す（未使用警告よけ）
 }
 
 //+++++++++++++++++++++++++++++++++++++++++++++++
