@@ -63,7 +63,7 @@ void lefthand_run(void) {
         //
         // 注意: 旋回したら maze_turn() を忘れずに。内部の方角情報がずれると
         //       現在座標の追跡（ゴール判定）が狂う。
-        // まずシミュレータで試せる: cd Sim && ./sim --lefthand mazes/practice03.maze
+        // まずシミュレータで試せる: cd Sim && ./sim --lefthand mazes/perfect.maze 15 15
         // 詳細: docs/exercises/03_左手法.md
         // =========================================
 
