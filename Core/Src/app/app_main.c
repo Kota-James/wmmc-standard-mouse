@@ -11,6 +11,7 @@
 #include "app/maze.h"
 #include "app/solver.h"
 #include "app/strategy.h"
+#include "app/lefthand.h"
 #include "app/ui.h"
 #include "hw/hw_sensor.h"
 #include "hw/hw_ui.h"
@@ -95,20 +96,27 @@ void app_main(void) {
             break;
 
         case 3:
-            //----空きモード----
-            // マイクロマウスのルールでは5分間で5回走行できるので，
-            // 連続で何回か走行するモードを作っておくと良い。
-            // 検索キーワード:「マイクロマウス オートスタート」
-            printf("Mode 3: .\n");
+            //----左手法走行----
+            printf("Mode 3: Left-Hand Run.\n");
+            lefthand_run();
             break;
 
         case 4:
-            //----空きモード----
+            //----空きモード（課題: オートスタート）----
+            // マイクロマウスのルールでは5分間で5回走行できるので，
+            // 1回のスイッチ操作で「探索 → 数秒待って → 二次走行」を
+            // 連続実行するモードを作っておくと良い。
+            // 検索キーワード:「マイクロマウス オートスタート」
             printf("Mode 4: .\n");
             break;
 
         case 5:
-            //----空きモード----
+            //----空きモード（課題: マップダンプ）----
+            // 探索が失敗したとき「マウスが何を信じていたか」を見られると
+            // デバッグが一気に楽になる。EEPROMからマップを読み込み
+            // （maze_load_from_eeprom），map[y][x] の壁と歩数マップを
+            // printfでアスキーアート表示する機能を作ってみよう。
+            // 描画の書き方は Sim/sim_main.c の print_maze() が参考になる
             printf("Mode 5: .\n");
             break;
 

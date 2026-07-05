@@ -91,6 +91,13 @@ static void search_to_goal(void) {
 // 探索走行の一連のシナリオ（モード1・2の本体）
 //+++++++++++++++++++++++++++++++++++++++++++++++
 void strategy_run(uint8_t second_run) {
+#if BATT_CHECK_ENABLED
+    if (hw_sensor_battery_is_low()) {
+        printf("Battery voltage low. Run aborted.\n");
+        return; // 電圧不足のまま走ると脱調や過放電の原因になる（params.h参照）
+    }
+#endif
+
     hw_motor_enable(); // ステッピングモータを励磁する
 
     maze_set_second_run(second_run);
