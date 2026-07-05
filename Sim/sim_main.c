@@ -8,8 +8,9 @@
  * 使い方:
  *   make
  *   ./sim mazes/practice01.maze [goal_x goal_y]
+ *   ./sim --lefthand mazes/practice03.maze   … 左手法で歩く（課題3の実験用）
  *
- * 終了コード: 0=探索・最短走行とも成功（課題の自動判定に使える）
+ * 終了コード: 0=成功（課題の自動判定に使える）
  */
 
 #include <stdio.h>
@@ -204,11 +205,50 @@ static int run_search(int *steps_taken) {
 }
 
 /*==========================================================
+    左手法（課題3の実験用）
+    実機の lefthand_run() と同じ判断を仮想マウスで行う
+==========================================================*/
+static int run_lefthand(void) {
+    int steps = 0;
+    printf("左手法で歩きます（優先順位: 左折 > 直進 > 右折 > Uターン）\n");
+    while (((mouse.x != goal_x) || (mouse.y != goal_y)) && steps < MAX_STEPS) {
+        uint8_t rel = rot4_left(truth[mouse.y][mouse.x], mouse.dir);
+        if (!(rel & 0x01)) { // 左が空いていれば左折
+            maze_turn(DIR_TURN_L90);
+        } else if (!(rel & 0x08)) { // 前が空いていれば直進
+        } else if (!(rel & 0x04)) { // 右が空いていれば右折
+            maze_turn(DIR_TURN_R90);
+        } else { // 行き止まりならUターン
+            maze_turn(DIR_TURN_180);
+        }
+        if (move_forward() != 0) return -1;
+        steps++;
+    }
+    if ((mouse.x == goal_x) && (mouse.y == goal_y)) {
+        printf("結果: 左手法でゴール到達（%d 歩）\n", steps);
+        return 0;
+    }
+    printf("結果: %d 歩歩いてもゴールに着けなかった。\n"
+           "この迷路にはループ（回り道）があり，左手法では中心に入れない。\n"
+           "なぜかは docs/exercises/03_左手法.md で考えよう\n",
+           steps);
+    return 1;
+}
+
+/*==========================================================
     main
 ==========================================================*/
 int main(int argc, char **argv) {
+    int lefthand = 0;
+    if (argc > 1 && strcmp(argv[1], "--lefthand") == 0) {
+        lefthand = 1;
+        argv++;
+        argc--;
+    }
     if (argc < 2) {
-        fprintf(stderr, "usage: %s <maze-file> [goal_x goal_y]\n", argv[0]);
+        fprintf(stderr,
+                "usage: %s [--lefthand] <maze-file> [goal_x goal_y]\n",
+                argv[0]);
         return 2;
     }
     if (load_maze(argv[1]) != 0) {
@@ -227,6 +267,11 @@ int main(int argc, char **argv) {
 
     printf("====== 迷路: %s  ゴール: (%d,%d) ======\n", argv[1], goal_x, goal_y);
     print_maze((const uint8_t(*)[MAZE_SIZE])truth, NULL);
+
+    //====左手法モード====
+    if (lefthand) {
+        return (run_lefthand() == 0) ? 0 : 1;
+    }
 
     //====一次走行（探索）====
     int steps1 = 0;
