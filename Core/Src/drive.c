@@ -117,7 +117,7 @@ void rotate_L90(void){
 void rotate_180(void){
 
   MF.FLAG.CTRL = 0;                   //制御を無効にする
-  drive_set_dir(ROTATE_R);            //左に旋回するようモータの回転方向を設定
+  drive_set_dir(ROTATE_R);            //右に旋回するようモータの回転方向を設定
   drive_wait();                       //機体が安定するまで待機
   driveC(PULSE_ROT_180);              //デフォルトインターバルで指定パルス分回転。回転後に停止する
   drive_wait();                       //機体が安定するまで待機
@@ -191,7 +191,7 @@ void driveD(uint16_t dist){
   MF.FLAG.DECL = 0;
   MF.FLAG.DEF = 0;
   MF.FLAG.ACCL = 0;                   //加速・減速・デフォルトインターバルフラグをクリア
-  drive_start();                      //痩躯開始
+  drive_start();                      //走行開始
 
   int16_t c_pulse = dist - (t_cnt_l - min_t_cnt);     //等速走行距離 = 総距離 - 減速に必要な距離
   if(c_pulse > 0){

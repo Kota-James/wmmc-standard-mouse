@@ -154,7 +154,8 @@ void searchB(void) {
             half_sectionD(); // 半区間分減速しながら走行し停止
 
             if (ad_fr >= WALL_BASE_FR * 1.5 && ad_fl >= WALL_BASE_FL * 1.5 &&
-                ad_r >= WALL_BASE_R * 1.5) { // 前壁と左壁が確実に有る場合
+                ad_r >= WALL_BASE_R * 1.5) { // 前壁と右壁が確実に有る場合
+                                             // （左90度回転×2の間に右壁→前壁の順で尻当てできる）
                 rotate_L90();                // 左回転
                 drive_wait(); // 機体が安定するまで待機，drive.h に定義あり
                 set_position(0); // 尻当てをして機体の位置を中央へ，drive.c
@@ -167,7 +168,7 @@ void searchB(void) {
                 drive_wait(); // 機体が安定するまで待機
             } else if (
                 ad_fr >= WALL_BASE_FR * 1.5 && ad_fl >= WALL_BASE_FL * 1.5 &&
-                ad_l >= WALL_BASE_L) { // それ以外で前壁と右壁が確実に有る場合
+                ad_l >= WALL_BASE_L) { // それ以外で前壁と左壁が有る場合
                 rotate_R90(); // 右回転
                 drive_wait(); // 機体が安定するまで待機，drive.h に定義あり
                 set_position(0); // 尻当てをして機体の位置を中央へ，drive.c
@@ -191,7 +192,7 @@ void searchB(void) {
 
             half_sectionD(); // 半区画分減速しながら走行し停止
             rotate_L90();    // 左回転
-            turn_dir(DIR_TURN_L90); // マイクロマウス内部位置情報でも右回転処理
+            turn_dir(DIR_TURN_L90); // マイクロマウス内部位置情報でも左回転処理
             half_sectionA(); // 半区画分加速しながら走行する
             break;
         }
@@ -520,7 +521,7 @@ void make_route() {
             route[i] = 0x22;        // 格納データ形式を変更
             break;
         case 0x03:                  // 左折する場合
-            turn_dir(DIR_TURN_L90); // 内部情報の方向を90度右回転
+            turn_dir(DIR_TURN_L90); // 内部情報の方向を90度左回転
             route[i] = 0x11;        // 格納データ形式を変更
             break;
         default:             // それ以外の場合
