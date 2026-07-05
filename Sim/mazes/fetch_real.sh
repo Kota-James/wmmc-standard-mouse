@@ -23,4 +23,9 @@ for name in $FILES; do
     fi
 done
 
-echo "done. 例: ../sim real/japan2019.maze"
+if [ -x ../sim ]; then
+    echo "done. 例: ../sim real/japan2019.maze"
+else
+    echo "done. シミュレータが未ビルドです。次を実行:"
+    echo "  cd .. && make && ./sim mazes/real/japan2019.maze"
+fi

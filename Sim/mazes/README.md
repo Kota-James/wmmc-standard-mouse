@@ -27,6 +27,7 @@
 cd Sim/mazes
 sh fetch_real.sh          # 全日本2015〜2019などを real/ に取得
 cd ..
+make                      # シミュレータ本体(sim)をビルド（クローン後の初回に必要）
 ./sim mazes/real/japan2019.maze
 make test                 # real/ に取得済みの迷路も自動でテスト対象になる
 ```
