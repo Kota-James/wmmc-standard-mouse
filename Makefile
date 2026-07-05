@@ -12,6 +12,8 @@ SIZE    = arm-none-eabi-size
 
 # ソース（ワイルドカードで拾うため、ファイル追加時に Makefile の編集は不要）
 C_SOURCES  = $(wildcard Core/Src/*.c) \
+             $(wildcard Core/Src/app/*.c) \
+             $(wildcard Core/Src/platform/*.c) \
              $(wildcard Drivers/STM32F3xx_HAL_Driver/Src/*.c)
 ASM_SOURCES = $(wildcard Core/Startup/*.s)
 

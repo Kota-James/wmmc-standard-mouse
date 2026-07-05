@@ -34,8 +34,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
-#define MAIN_C_
-#include "global.h"
+#include "app/app_main.h"
 
 /* USER CODE END Includes */
 
@@ -123,182 +122,19 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
-    setbuf(stdout, NULL);  // printf用
-
-    sensor_init();  // センサ系の変数の初期化。ADコンバータの設定とセンサ値取得に使用するタイマの初期設定
-                    // sensor.c で定義されている
-    drive_init();   // 走行系の変数の初期化。モーター関係のGPIO設定とPWM出力に使うタイマ割込みの設定
-                    // drive.c で定義されている
-    search_init();  // 探索系の変数の初期化。search.c で定義されている
-
-    printf("***** WMMC Nucleo Mouse 2023 *****\n");
-
-    //====変数宣言====
-    int mode = 0;
+    // マウスとしての処理はすべて app_main() の中にある（Core/Src/app/app_main.c）。
+    // CubeMXが再生成するこのファイルには手書きコードを増やさないこと
+    app_main(); // 戻らない
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-    while (1) {
-        //====モード選択====
-        mode = select_mode(mode);  // select_mode(); は auxiliary.c で定義されている
-
-        //----モード分岐----
-        switch (mode) {
-            case 0:
-                //----基準値を取る----
-                // この動作はスタート時に自動で行うと便利で、case 1~ ではそうなっている。
-                // このモードは手動で行う場合に使用する。
-                printf("Mode 0: Get Base Value.\n");
-                get_base();  // 壁制御のための基準値取得，sensor.c で定義されている
-                break;
-
-            case 1:
-                //----探索走行----
-                printf("Mode 1: 1st Run.\n");
-                drive_enable_motor();  // ステッピングモータを励磁する
-                                       // drive.c で定義されている
-
-                MF.FLAG.SCND = 0;  // 二次走行フラグをクリア
-                                   // マウスフラグは global.h に定義あり
-                goal_x = GOAL_X;
-                goal_y = GOAL_Y;  // ゴール座標を設定，GOAL_X・GOAL_Y は params.h に定義あり
-
-                rotate_R90();     // 右に90度回転する drive.c で定義されている
-                drive_wait();     // 機体が安定するまで待機，drive.h に定義あり
-                set_position(0);  // 尻当てをして機体位置を中央へ drive.c で定義されている
-                drive_wait();     // 機体が安定するまで待機
-                rotate_L90();     // 左に90度回転する drive.c で定義されている
-                drive_wait();     // 機体が安定するまで待機
-                set_position(0);  // 尻当てをして機体位置を中央へ
-                drive_wait();     // 機体が安定するまで待機
-
-                get_base();  // 壁制御のための基準取得
-
-                searchB();  // 現在位置をスタート地点にしてゴール座標まで探索走行
-                HAL_Delay(500);
-
-                goal_x = goal_y = 0;  // ゴール座標をスタート地点に設定する
-                searchB();            // 探索しながらスタート地点に戻る
-
-                goal_x = GOAL_X;
-                goal_y = GOAL_Y;  // ゴール座標を設定
-
-                drive_disable_motor();  // ステッピングモータの励磁を切る
-                break;
-
-            case 2:
-                //----二次（最短）走行----
-                printf("Mode 2: 2nd Run.\n");
-                if (!map_in_eeprom_is_valid()) {
-                    // マップ未保存のまま二次走行すると全区画が壁として読まれ探索がフリーズするため中止する
-                    printf("No map in EEPROM. Run Mode 1 first.\n");
-                    break;
-                }
-                drive_enable_motor();
-
-                MF.FLAG.SCND = 1;  // 二次走行フラグをセット
-                goal_x = GOAL_X;
-                goal_y = GOAL_Y;
-
-                rotate_R90();
-                drive_wait();
-                set_position(0);
-                drive_wait();
-                rotate_L90();
-                drive_wait();
-                set_position(0);
-                drive_wait();
-
-                get_base();
-
-                searchB();
-                HAL_Delay(500);
-
-                goal_x = goal_y = 0;
-                searchB();
-
-                goal_x = GOAL_X;
-                goal_y = GOAL_Y;
-
-                drive_disable_motor();
-                break;
-
-            case 3:
-
-                //----空きモード----
-                // マイクロマウスのルールでは5分間で5回走行できるので、
-                // 連続で何回か走行するモードを作っておくと良い。
-                // 検索キーワード:「マイクロマウス オートスタート」
-
-                printf("Mode 3: .\n");
-
-                break;
-
-            case 4:
-
-                //----空きモード----
-                printf("Mode 4: .\n");
-                break;
-
-            case 5:
-
-                //----空きモード----
-                printf("Mode 5: .\n");
-                break;
-
-            case 6:
-                //----テスト走行----
-                // このモードを使って区画距離・旋回角度などのパラメータを調整する
-
-                printf("Mode 6: Test Run.\n");
-                test_run();  // test_run(); は drive.c で定義されている
-                break;
-
-            case 7:
-                //----センサチェック----
-                // このモードを使ってセンサで壁の有無を判断するための閾値を調整する
-
-                printf("Sensor Check.\n");
-                while (1) {
-                    get_wall_info();
-                    led_write(wall_info & 0x44, wall_info & 0x88,
-                              wall_info & 0x11);
-                    printf(
-                        " ad_l : %4lu, ad_fl : %4lu, ad_fr : %4lu, ad_r : %4lu, "
-                        "ad_batt : %4lu\n",
-                        ad_l, ad_fl, ad_fr, ad_r, ad_batt);
-                    printf("dif_l : %4d, dif_r : %4d\n", dif_l, dif_r);
-                    if (wall_info & 0x11) {
-                        printf("Left : [X], ");
-                    } else {
-                        printf("Left : [ ], ");
-                    }
-                    if (wall_info & 0x88) {
-                        printf("Front : [X], ");
-                    } else {
-                        printf("Front : [ ], ");
-                    }
-                    if (wall_info & 0x44) {
-                        printf("Right : [X]\n");
-                    } else {
-                        printf("Right : [ ]\n");
-                    }
-
-                    // バッテリーの電圧を分圧したものを測定し、値を ad_batt に格納している（interrupt.c 参照）
-                    // これを利用してバッテリーが消耗してきたらLEDなどで知らせる機能を追加すると便利
-
-                    // printf("ad_batt : %4d\n", ad_batt);
-
-                    HAL_Delay(333);
-                }
-                break;
-        }
-
+  while (1)
+  {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    }
+  }
   /* USER CODE END 3 */
 }
 
