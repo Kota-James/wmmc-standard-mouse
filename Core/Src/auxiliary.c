@@ -83,10 +83,11 @@ int select_mode(int mode) {
 // printf を使うために必要
 //+++++++++++++++++++++++++++++++++++++++++++++++
 int __io_putchar(int c) {
-    if (c == '\n') {
-        int _c = '\r';
-        HAL_UART_Transmit(&huart2, &_c, 1, 1);
+    uint8_t ch = (uint8_t)c;
+    if (ch == '\n') {
+        uint8_t cr = '\r';
+        HAL_UART_Transmit(&huart2, &cr, 1, 1);
     }
-    HAL_UART_Transmit(&huart2, &c, 1, 1);
-    return 0;
+    HAL_UART_Transmit(&huart2, &ch, 1, 1);
+    return c;
 }
