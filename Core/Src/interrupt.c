@@ -135,6 +135,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
                     MF.FLAG.LOWVOL = 1;
                 }
             } else {
+                low_vol_count = 0; // 回復したらカウントし直す（連続して下回った場合のみ警告する）
                 MF.FLAG.LOWVOL = 0;
             }
 
