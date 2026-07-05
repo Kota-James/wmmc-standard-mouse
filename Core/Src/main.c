@@ -773,9 +773,11 @@ static void MX_GPIO_Init(void)
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
-    /* User can add his own implementation to report the HAL error return state
-     */
-
+    // HALの初期化失敗を黙って続行しないよう、割り込みを止めてLED1を点灯したまま停止する
+    __disable_irq();
+    HAL_GPIO_WritePin(LED1_GPIO_Port, LED1_Pin, GPIO_PIN_SET);
+    while (1) {
+    }
   /* USER CODE END Error_Handler_Debug */
 }
 
