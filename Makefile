@@ -1,9 +1,9 @@
 # コマンドライン / CI 用ビルド（CubeIDE の GUI ビルドと併存する。出力は build/ のみ）
-# 使い方: make          … ファームウェア (build/NucleoMouse2023.elf/.bin) を生成
+# 使い方: make          … ファームウェア (build/wmmc-standard-mouse.elf/.bin) を生成
 #         make clean    … build/ を削除
 # 必要なもの: arm-none-eabi-gcc（Ubuntu: sudo apt install gcc-arm-none-eabi libnewlib-arm-none-eabi）
 
-TARGET  = NucleoMouse2023
+TARGET  = wmmc-standard-mouse
 BUILD   = build
 
 CC      = arm-none-eabi-gcc
