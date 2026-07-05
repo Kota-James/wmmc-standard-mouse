@@ -149,13 +149,14 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
 
         //----制御処理----
         case 2:
+            // 基準値からの差を見る（センサチェックモードでも表示するため制御の有無に関わらず更新する）
+            dif_l = (int32_t)ad_l - base_l;
+            dif_r = (int32_t)ad_r - base_r;
+
             // 制御フラグがあれば制御
             if (MF.FLAG.CTRL) {
                 // 比例制御値を一次保存する変数を宣言し0で初期化
                 int16_t dl_tmp = 0, dr_tmp = 0;
-                // 基準値からの差を見る
-                dif_l = (int32_t)ad_l - base_l;
-                dif_r = (int32_t)ad_r - base_r;
 
                 if (CTRL_BASE_L < dif_l) {            // 制御の判断
                     dl_tmp += -1 * CTRL_CONT * dif_l; // 比例制御値を決定
