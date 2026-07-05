@@ -2,6 +2,9 @@
 Debug/
 Release/
 
+# Makefile build output
+build/
+
 # Eclipse workspace metadata
 .metadata/
 
