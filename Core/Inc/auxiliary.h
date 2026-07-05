@@ -10,8 +10,9 @@
 
 
 
-#define min(A,B) ((A)>(B))?(B):(A)
-#define max(A,B) ((A)>(B))?(A):(B)
+// 三項演算子ごと括弧で包まないと 2*min(a,b) のような式で誤展開する
+#define min(A,B) (((A)>(B))?(B):(A))
+#define max(A,B) (((A)>(B))?(A):(B))
 
 
 
