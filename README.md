@@ -21,6 +21,9 @@ STM32 Nucleo-32（STM32F303K8）を使ったクラシックマウス用の標準
 
 ## 開発環境・ビルド
 
+OS 別（Windows / macOS / Ubuntu）のセットアップ手順は
+**[docs/環境構築.md](docs/環境構築.md)** を参照。概要:
+
 1. STM32CubeIDE をインストールし、このリポジトリを import（Existing Projects into Workspace）
 2. ビルドして ST-Link 経由で書き込み
 
