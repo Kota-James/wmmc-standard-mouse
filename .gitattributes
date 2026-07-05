@@ -1,0 +1,2 @@
+# すべてのテキストファイルを LF で管理する（CubeMX が CRLF で再生成しても commit 時に正規化される）
+* text=auto eol=lf

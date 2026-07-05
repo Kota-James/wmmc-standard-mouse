@@ -1,0 +1,6 @@
+# 日本語コメントを巻き込んで折り返さないよう ReflowComments を無効にしている
+BasedOnStyle: LLVM
+IndentWidth: 4
+ColumnLimit: 100
+ReflowComments: false
+SortIncludes: false
