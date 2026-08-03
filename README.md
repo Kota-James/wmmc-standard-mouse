@@ -22,10 +22,21 @@ STM32 Nucleo-32（STM32F303K8）を使ったクラシックマウス用の標準
 ## 開発環境・ビルド
 
 OS 別（Windows / macOS / Ubuntu）のセットアップ手順は
-**[docs/環境構築.md](docs/環境構築.md)** を参照。概要:
+**[docs/環境構築.md](docs/環境構築.md)** を参照。方法は 2 つあり、どちらでもよい。
 
-1. STM32CubeIDE をインストールし、このリポジトリを import（Existing Projects into Workspace）
+**A. STM32CubeIDE**（ステップ実行デバッグと `.ioc` 編集ができる）
+
+1. CubeIDE をインストールし、このリポジトリを import（Existing Projects into Workspace）
 2. ビルドして ST-Link 経由で書き込み
+
+**B. コマンドライン**（インストールが軽い。デバッグは printf のみ）
+
+```sh
+make    # build/wmmc-standard-mouse.bin ができる
+```
+
+できた `.bin` を、USB 接続すると現れる `NODE_F303K8` のようなドライブに
+コピーすれば書き込める（[docs/環境構築.md](docs/環境構築.md) §4）。
 
 HAL ドライバ本体（`Drivers/`）はリポジトリに含まれているため、クローン直後にそのまま
 ビルドできる。ピン設定や周辺機能を変更するときだけ `wmmc-standard-mouse.ioc` を
