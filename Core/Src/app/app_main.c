@@ -62,7 +62,7 @@ void app_main(void) {
     goal_y = GOAL_Y;
     goal_size = GOAL_SIZE; // ゴールは中央2×2領域（params.hで調整）
 
-    printf("***** WMMC Nucleo Mouse 2023 *****\n");
+    printf("***** WMMC Standard Mouse *****\n");
 
     //====モード選択ループ====
     int mode = 0;
